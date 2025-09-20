@@ -1,0 +1,133 @@
+class DailyNoteContent {
+	get #dailyNoteHelper() {
+		return window.customJS.createDailyNoteHelperInstance();
+	}
+
+	get #propertyManager() {
+		return window.customJS.createPropertyManagerInstance();
+	}
+
+	get #sectionManager() {
+		return window.customJS.createExtendedSectionManagerInstance();
+	}
+
+	// create daily note by provided date from scratch
+	async createNote(date) {
+		const { templatePath, activePath } =
+			this.#dailyNoteHelper.getStructurePathes();
+
+		const note = await window.customJS.NoteManager.createNoteByTemplate({
+			folderPath: activePath,
+			name: date,
+			templatePath,
+		});
+
+		if (!note) return;
+
+		this.rollover(note, true);
+		this.updateProps(note);
+		return note;
+	}
+
+	// update provided daily note properties - links to 'prev' and 'next' daily notes
+	async updateProps(note) {
+		const types = ['prev', 'next'];
+
+		for (const type of types) {
+			const targetNote = this.#dailyNoteHelper.getClosestDailyNote(
+				note.basename,
+				type
+			);
+
+			if (!targetNote) continue;
+
+			const currentLink = await this.#propertyManager.read(note, type);
+			const link = `[[${targetNote.path}|${targetNote.basename}]]`;
+
+			if (currentLink !== link) {
+				await this.#propertyManager.set(
+					note,
+					{ [type]: link },
+					'force'
+				);
+			}
+		}
+	}
+
+	// whether provided daily note has newest rollover
+	async isRollovered(note) {
+		const betterRolloverDate = this.#dailyNoteHelper.getClosestDailyNote(
+			note.basename,
+			'prev'
+		)?.basename;
+
+		const rolloverDate = await this.#propertyManager.read(
+			note,
+			'rollovered'
+		);
+
+		return new Date(rolloverDate) >= new Date(betterRolloverDate);
+	}
+
+	// rollover content from the previous daily note into the current one
+	async rollover(note, isNewlyCreated = false) {
+		const previousNote = this.#dailyNoteHelper.getClosestDailyNote(
+			note.basename,
+			'prev'
+		);
+
+		if (isNewlyCreated) {
+			const { templatePath } = this.#dailyNoteHelper.getStructurePathes();
+			note = window.customJS.NoteManager.getNoteByPath(templatePath);
+		}
+
+		await this.#staticRollover(previousNote, note);
+		await this.#dynamicRollover(previousNote, note);
+	}
+
+	// static rollover - preserve callouts data
+	// TODO possibly more with right markers in future??
+	async #staticRollover(previousNote, currentNote) {
+		const prevSm = await this.#sectionManager.load(previousNote);
+		const prevCallouts = prevSm.getSectionsContentObjects('callout');
+		if (prevCallouts.callout.length === 0) return;
+
+		let currentSm = await this.#sectionManager.load(currentNote);
+		const currentCallouts = currentSm.getSectionsContentObjects('callout');
+		const contentMap = currentCallouts.callout.map((curr) => {
+			const index = prevCallouts.callout.findIndex((prev) =>
+				prev.content.trim().includes(curr.content.trim())
+			);
+
+			if (index === -1) return null;
+
+			let newContent = prevCallouts.callout[index].content.trim();
+			prevCallouts.callout.splice(index, 1);
+			return {
+				current: curr.content.trim(),
+				new: newContent,
+			};
+		});
+
+		let noteContent = await app.vault.read(currentNote);
+		contentMap
+			.filter((c) => !!c)
+			.forEach((content) => {
+				noteContent = noteContent.replace(content.current, content.new);
+			});
+
+		await app.vault.modify(currentNote, noteContent);
+	}
+
+	/*
+	 * dynamic rollover - preserves dynamic content sections:
+	 * - unchecked checkboxes
+	 * - unfinised inline and preview tasks??
+	 * - other pipeline staff??
+	 */
+	async #dynamicRollover(previousNote, currentNote) {
+		// TODO unchecked checkboxes
+		console.log('dynamic rollover', previousNote, currentNote);
+		return currentNote;
+	}
+}
