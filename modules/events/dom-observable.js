@@ -1,4 +1,8 @@
 class DomObservable {
+	/*
+	 * class uses internal fields to support method chaining and subscriptions
+	 * must be used via a new instance to ensure proper isolation of the state
+	 */
 	#event;
 	#propName;
 	#handlers = new Set();
