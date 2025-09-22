@@ -8,8 +8,8 @@ class DailyNoteCommands {
 	}
 
 	// used as is on quickadd command to open daily notes
-	async openDailyNote({ input, isMuted = false, split = true }) {
-		const date = this.#dateExpression.parse({ input: input.trim() });
+	async openDailyNote({ input, isMuted = false, split = true } = {}) {
+		const date = this.#dateExpression.parse({ input });
 
 		if (!(await this.#noteManager.doNoteExistByName(date))) {
 			if (isMuted) return;
@@ -25,14 +25,23 @@ class DailyNoteCommands {
 		});
 	}
 
-	// used as is on quickadd command to bulk open daily notes
+	/*
+	 * used as is on quickadd command to bulk open daily notes. 
+	 * syntax - 'f:{d} t:{d}?', where:
+	 * - {d} is date expression
+	 * - whole second part is optional (no 'to' date - current one used)
+	 */
 	async bulkOpenDailyNotes(input) {
-		const match = input.match(/f:(.*)\s+t:(.*)/);
+		const match = input.match(/f:([.\S]*)(?:\s+t:(.*))?/);
 		if (!match) return;
 
 		const [, fromStr, toStr] = match;
-		let from = new Date(this.#dateExpression.parse({ input: fromStr }));
-		let to = new Date(this.#dateExpression.parse({ input: toStr }));
+		let from = this.#dateExpression.parse({ input: fromStr });
+		let to = this.#dateExpression.parse({ input: toStr });
+
+		if (!from || !to) return;
+		from = new Date(from);
+		to = new Date(to);
 
 		let isFirst = true;
 		for (; from <= to; from.setDate(from.getDate() + 1)) {
