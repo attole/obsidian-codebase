@@ -1,4 +1,9 @@
 class SectionManager {
+	/*
+	 * basic section related functionality, used internally by ExtendedSectionManager
+	 * should not be used independently
+	 */
+	
 	getSectionContent(content, section) {
 		const start = section.position.start.offset;
 		const end = section.position.end?.offset ?? content.length;
@@ -6,6 +11,7 @@ class SectionManager {
 		return content.slice(start, end);
 	}
 
+	// check whether sections is actually an embed data (embeds are just ![[path]]) 
 	isSectionEmbed(metadata, section) {
 		if (!metadata.embeds) return false;
 
