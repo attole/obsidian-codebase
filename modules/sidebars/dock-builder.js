@@ -8,13 +8,12 @@ class DockBuilder {
 		let dockFiles = this.#formDockFiles(config.files, files);
 		if (!dockFiles) return;
 
-		console.log('DD', dockFiles);
-
-		this.#closeOldDockFiles(config.position);
+		this.#closeAllDockFiles(config.position);
 		await this.#openDockFiles(dockFiles, config.position);
 		this.#resizeDockFiles(dockFiles, config.position);
 	}
 
+	// // TODO get this data from db, not manual config
 	async #getData(folderPath) {
 		let files = window.customJS.FolderManager.getDirectNotes(folderPath);
 
@@ -42,21 +41,6 @@ class DockBuilder {
 		}
 
 		return dockFiles.length !== 0 ? dockFiles : null;
-	}
-
-	async #closeOldDockFiles(position) {
-		let sidebarSplit;
-		if (position === 'left') sidebarSplit = app.workspace.getLeftLeaf(true);
-		else sidebarSplit = app.workspace.getRightLeaf(true);
-
-		sidebarSplit = sidebarSplit.parent.parent;
-		if (!sidebarSplit) return;
-
-		[...sidebarSplit.children].forEach((leaf) => {
-			console.log(leaf, leaf.containerEl.classList.contains('mod-top'));
-			if (leaf.containerEl.classList.contains('mod-top')) return;
-			leaf.detach();
-		});
 	}
 
 	async #openDockFiles(dockFiles, position) {
@@ -88,5 +72,19 @@ class DockBuilder {
 		for (const index in tabs) {
 			tabs[index].style.flexGrow = dockFiles[index].size;
 		}
+	}
+
+	#closeAllDockFiles(position) {
+		let sidebarSplit;
+		if (position === 'left') sidebarSplit = app.workspace.getLeftLeaf(true);
+		else sidebarSplit = app.workspace.getRightLeaf(true);
+
+		sidebarSplit = sidebarSplit.parent.parent;
+		if (!sidebarSplit) return;
+
+		[...sidebarSplit.children].forEach((leaf) => {
+			if (leaf.containerEl.classList.contains('mod-top')) return;
+			leaf.detach();
+		});
 	}
 }
