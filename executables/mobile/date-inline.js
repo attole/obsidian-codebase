@@ -46,9 +46,6 @@ class DateInline {
 
 	async #tryInsertFromClipboard(editor, tokenizer, parser) {
 		const text = await navigator.clipboard.readText();
-
-		console.log('A', text);
-
 		const newText = this.#parseInternally(text, tokenizer, parser);
 		if (newText === text) return false;
 

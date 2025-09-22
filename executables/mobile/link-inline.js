@@ -22,8 +22,6 @@ class LinkInline {
 			)
 			.replaceAndCollect();
 
-		console.log('AAA', text, newText);
-
 		if (newText === text) return;
 
 		editor.replaceRange(
