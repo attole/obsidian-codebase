@@ -1,10 +1,12 @@
 class ExtendedSectionManager {
 	/*
-	 * section manager for extended custom sections
-	 * rules:
-	 * - as for empty multiple invisible spaces are used - empty-line-insert,
-	 *   those lines make multiple paragraphs as one, so they should be deleted and
-	 *   all sections updated respectively
+	 * class uses internal fields to support method chaining
+	 * must be used via a new instance to ensure proper isolation of the state
+	 * 
+	 * extended section rules:
+	 * - because for empty multiple invisible spaces used - empty-line-insert, 
+	 *   which insert invisible space on new line, those lines make multiple paragraphs
+	 *   as one, so they should be deleted and all sections updated respectively
 	 * - if code and list sections have paragraphs straight on previous or next lines
 	 *   it is considered as one section
 	 */
@@ -34,7 +36,7 @@ class ExtendedSectionManager {
 		return this;
 	}
 
-	// get sections content and their metadata. links is also present in paragraphs
+	// get sections content and metadata. links content is also present in paragraphs
 	getSectionsContentObjects(...types) {
 		if (!this.#content) {
 			const error = 'extededSectionManager: no note was loaded';
@@ -132,9 +134,7 @@ class ExtendedSectionManager {
 		return result;
 	}
 
-	/*
-	 * get array of raw objects for specific sections types. result have more data than getSectionsObjects
-	 */
+	// get array of raw objects for specific sections types. result have more data than getSectionsObjects
 	getRawSectionsObjects(...types) {
 		if (!this.#content) {
 			const error = 'extededSectionManager: no note was loaded';
@@ -174,6 +174,7 @@ class ExtendedSectionManager {
 		this.#sections = this.#sections.filter((s) => !!s);
 	}
 
+	// if there is empty lines inside paragraph sections, split into multiple ones
 	async #fixEmptyLines() {
 		for (let i = 0; i < this.#sections.length; i++) {
 			if (this.#sections[i].type !== 'paragraph') continue;
