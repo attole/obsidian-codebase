@@ -17,7 +17,7 @@ class TabsHeaderHider {
 			);
 			if (firstTabHeaderInner) firstTabHeaderInner.style.display = 'none';
 
-			// remove header for every later tab
+			// remove headers for all tabs after the first
 			tabs.slice(1).forEach((tab) => {
 				const header = tab.querySelector(
 					'.workspace-tab-header-container'
@@ -25,8 +25,6 @@ class TabsHeaderHider {
 
 				if (header) header.style.display = 'none';
 			});
-
-			console.log(tabs);
 		});
 	}
 }
