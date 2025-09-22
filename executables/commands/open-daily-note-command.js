@@ -3,6 +3,8 @@ module.exports = async (params) => {
 
 	const handler = window.customJS.DailyNoteCommands;
 	const input = await quickAddApi.inputPrompt();
+	if (!input || input === '') return await handler.openDailyNote();
+
 	const isBulkOpen = input.trim().startsWith('b');
 	const isCreate = input.trim().startsWith('c');
 
