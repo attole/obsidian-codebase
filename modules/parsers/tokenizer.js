@@ -1,6 +1,8 @@
 class Tokenizer {
-	// Method chaining desing is chosen, and from outside tokenized is used as new instance each time
-	// If ever change design - clear internall data at replaceAndCollect
+	/*
+	 * class uses internal fields to support method chaining
+	 * must be used via a new instance to ensure proper isolation of the state
+	 */
 	#tokens = null;
 	#text = null;
 
