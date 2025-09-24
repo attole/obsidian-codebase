@@ -80,12 +80,13 @@ class DailyNoteContent {
 			'prev'
 		);
 
-		if (isNewlyCreated) {
-			const { templatePath } = this.#dailyNoteHelper.getStructurePathes();
-			note = window.customJS.NoteManager.getNoteByPath(templatePath);
+		// if note is not newly created - try to fix properites, in case note was not property
+		// created by scripts, but rather by some external plugins that use daily notes plugin
+		if (!isNewlyCreated) {
+			await window.customJS.PropertyManager.fix(note);
 		}
 
-		await this.#staticRollover(previousNote, note);
+		await this.#staticRollover(previousNote, note, isNewlyCreated);
 		await this.#dynamicRollover(previousNote, note);
 	}
 
