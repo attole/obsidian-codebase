@@ -44,7 +44,21 @@ class DailyNoteStartup {
 			activePath
 		);
 
-		const extraNotes = notes.filter((note) => note.basename !== date);
+		const prevNote = this.#dailyNoteHelper.getClosestDailyNote(
+			date,
+			'prev'
+		);
+		const nextNote = this.#dailyNoteHelper.getClosestDailyNote(
+			date,
+			'next'
+		);
+
+		const extraNotes = notes.filter(
+			(note) =>
+				![prevNote.basename, date, nextNote.basename].contains(
+					note.basename
+				)
+		);
 
 		for (const note of extraNotes) {
 			await this.#dailyNoteContent.updateProps(note);
