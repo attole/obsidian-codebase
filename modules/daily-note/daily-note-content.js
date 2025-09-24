@@ -54,19 +54,23 @@ class DailyNoteContent {
 		}
 	}
 
-	// whether provided daily note has newest rollover
+	/*
+	 * whether provided daily note has newest rollover. rollover property could be:
+	 * - old date, in case note was created by scripts, but long time ago
+	 * - date expression template, in case note was not property created by scripts,
+	 *   but rather by some external plugins that used daily notes plugin
+	 */
 	async isRollovered(note) {
 		const betterRolloverDate = this.#dailyNoteHelper.getClosestDailyNote(
 			note.basename,
 			'prev'
 		)?.basename;
 
-		const rolloverDate = await this.#propertyManager.read(
-			note,
-			'rollovered'
+		const rollover = await this.#propertyManager.read(note, 'rollovered');
+		return (
+			!isNaN(new Date(rollover)) &&
+			new Date(rollover) >= new Date(betterRolloverDate)
 		);
-
-		return new Date(rolloverDate) >= new Date(betterRolloverDate);
 	}
 
 	// rollover content from the previous daily note into the current one
