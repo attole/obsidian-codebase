@@ -55,9 +55,9 @@ class DailyNoteStartup {
 
 		const extraNotes = notes.filter(
 			(note) =>
-				![prevNote.basename, date, nextNote.basename].contains(
-					note.basename
-				)
+				note.basename !== date &&
+				(!prevNote || prevNote.basename !== note.basename) &&
+				(!nextNote || nextNote.basename !== note.basename)
 		);
 
 		for (const note of extraNotes) {
