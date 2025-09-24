@@ -92,12 +92,24 @@ class DailyNoteContent {
 
 	// static rollover - preserve callouts data
 	// TODO possibly more with right markers in future??
-	async #staticRollover(previousNote, currentNote) {
+	async #staticRollover(previousNote, currentNote, useTemplateNote) {
 		const prevSm = await this.#sectionManager.load(previousNote);
 		const prevCallouts = prevSm.getSectionsContentObjects('callout');
 		if (prevCallouts.callout.length === 0) return;
 
-		let currentSm = await this.#sectionManager.load(currentNote);
+		// if note is newly created - use template note for callouts header, not newly
+		// created one, because new one is not yet cached to have sections available
+		const { templatePath } = this.#dailyNoteHelper.getStructurePathes();
+		const templateNote =
+			window.customJS.NoteManager.getNoteByPath(templatePath);
+		const structureNote = useTemplateNote ? templateNote : currentNote;
+
+		// there is still a chance that note is not cached yet (in case it was created
+		// recently by external plugin that use daily notes plugins)
+		// so backup to template one on error
+		let currentSm =
+			(await this.#sectionManager.load(structureNote)) ||
+			(await this.#sectionManager.load(templateNote));
 		const currentCallouts = currentSm.getSectionsContentObjects('callout');
 		const contentMap = currentCallouts.callout.map((curr) => {
 			const index = prevCallouts.callout.findIndex((prev) =>
