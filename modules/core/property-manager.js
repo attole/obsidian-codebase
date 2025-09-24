@@ -84,6 +84,26 @@ class PropertyManager {
 		return await app.metadataTypeManager.getAllProperties();
 	}
 
+	/*
+	 * as scripts manually create notes, no default obsidian template expressions are parsed automatically
+	 * moreover, there is a need to know whether note was created properly (templates where replaced),
+	 * so those expressions are specifically different to default obsidian ones, and are fixed there
+	 * rules:
+	 * - {{currentDate}} - current date
+	 */
+	async fix(note) {
+		const properties = await this.list(note);
+		if (!properties) return;
+
+		// replate date template expression for current date
+		const date = window.customJS.DateExpressionParser.parse();
+		for (const key in properties) {
+			if (properties[key] === '{{currentDate}}') {
+				await this.set(note, { [key]: date }, 'force');
+			}
+		}
+	}
+
 	#getPropertyType(key) {
 		const info = app.metadataTypeManager.getPropertyInfo(key);
 		return info.widget;

@@ -206,12 +206,14 @@ class NoteManager {
 			return;
 		}
 
-		let content = await app.vault.read(templateNote);
-		content = content.replace(
-			'{{date}}',
-			window.customJS.DateExpressionParser.parse()
-		);
-		return this.createNoteByFullPath({ path, content, options });
+		const content = await app.vault.read(templateNote);
+		const note = await this.createNoteByFullPath({
+			path,
+			content,
+			options,
+		});
+		await window.customJS.PropertyManager.fix(note);
+		return note;
 	}
 
 	/*
