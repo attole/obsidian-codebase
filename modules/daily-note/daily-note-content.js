@@ -111,19 +111,25 @@ class DailyNoteContent {
 			(await this.#sectionManager.load(structureNote)) ||
 			(await this.#sectionManager.load(templateNote));
 		const currentCallouts = currentSm.getSectionsContentObjects('callout');
+
+		function firstLine(str) {
+			const idx = str.indexOf('\n');
+			return (idx === -1 ? str : str.slice(0, idx)).trim();
+		}
+
+		// map previous to current ones by first line - header of type '>[!type] title/n'
+		const prevCalloutsHeaders = {};
+		prevCallouts.callout.forEach((p) => {
+			prevCalloutsHeaders[firstLine(p.content)] = p.content.trim();
+		});
+
 		const contentMap = currentCallouts.callout.map((curr) => {
-			const index = prevCallouts.callout.findIndex((prev) =>
-				prev.content.trim().includes(curr.content.trim())
-			);
+			const header = firstLine(curr.content);
+			const newContent = prevCalloutsHeaders[header];
+			if (!newContent) return null;
 
-			if (index === -1) return null;
-
-			let newContent = prevCallouts.callout[index].content.trim();
-			prevCallouts.callout.splice(index, 1);
-			return {
-				current: curr.content.trim(),
-				new: newContent,
-			};
+			delete prevCalloutsHeaders[header];
+			return { current: curr.content.trim(), new: newContent };
 		});
 
 		let noteContent = await app.vault.read(currentNote);
