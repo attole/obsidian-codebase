@@ -2,9 +2,9 @@ class ExtendedSectionManager {
 	/*
 	 * class uses internal fields to support method chaining
 	 * must be used via a new instance to ensure proper isolation of the state
-	 * 
+	 *
 	 * extended section rules:
-	 * - because for empty multiple invisible spaces used - empty-line-insert, 
+	 * - because for empty multiple invisible spaces used - empty-line-insert,
 	 *   which insert invisible space on new line, those lines make multiple paragraphs
 	 *   as one, so they should be deleted and all sections updated respectively
 	 * - if code and list sections have paragraphs straight on previous or next lines
@@ -33,6 +33,9 @@ class ExtendedSectionManager {
 		this.#metadata = copy;
 
 		await this.#loadInternal();
+
+		console.log('DEBUG', this.#sections);
+
 		return this;
 	}
 
@@ -157,9 +160,12 @@ class ExtendedSectionManager {
 
 	async #loadInternal() {
 		if (this.#sections.filter((s) => s.type === 'paragraph').length === 0)
+			//delete this
 			return;
 
 		await this.#fixEmptyLines();
+
+		console.log('INTERNAL', this.#sections);
 
 		// extend sections from base extension types and neighbour paragraphs
 		const extentionTypes = ['list', 'code'];
@@ -174,10 +180,18 @@ class ExtendedSectionManager {
 		this.#sections = this.#sections.filter((s) => !!s);
 	}
 
-	// if there is empty lines inside paragraph sections, split into multiple ones
+	/*
+	 * some section types include empty lines as part of their content, so there is a need to split them into multiple ones
+	 * - paragraphs concat all empty spaces (and content straight before and after)
+	 * - lists concant first line after them as part of themselves, as well as empty line (and everything straight after)
+	 */
 	async #fixEmptyLines() {
 		for (let i = 0; i < this.#sections.length; i++) {
-			if (this.#sections[i].type !== 'paragraph') continue;
+			if (
+				this.#sections[i].type !== 'paragraph' &&
+				this.#sections[i].type !== 'list'
+			)
+				continue;
 
 			const sourceSectionContent = this.#sectionHelper.getSectionContent(
 				this.#content,
@@ -216,8 +230,14 @@ class ExtendedSectionManager {
 					offset: endPosition.offset,
 				};
 
+				const type = c.startsWith('>[!')
+					? 'callout'
+					: c.startsWith('- ')
+					? 'list'
+					: 'paragraph';
+
 				return {
-					type: 'paragraph',
+					type: type,
 					position: {
 						start: startPosition,
 						end: endPosition,
