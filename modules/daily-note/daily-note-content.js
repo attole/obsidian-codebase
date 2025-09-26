@@ -113,8 +113,8 @@ class DailyNoteContent {
 		const currentCallouts = currentSm.getSectionsContentObjects('callout');
 
 		function firstLine(str) {
-			const idx = str.indexOf('\n');
-			return (idx === -1 ? str : str.slice(0, idx)).trim();
+			const index = str.indexOf('\n');
+			return (index === -1 ? str : str.slice(0, index)).trim();
 		}
 
 		// map previous to current ones by first line - header of type '>[!type] title/n'
