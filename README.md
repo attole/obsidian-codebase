@@ -9,9 +9,9 @@
 
 - **Plugin-driven**
   - This codebase **requires specific Obsidian plugins** to run — without them, nothing works.
-- **CustomJS integration**
+- **[CustomJS](https://github.com/saml-dev/obsidian-custom-js) integration**
   - Class-based modules (no DI/constructors; pure classes or explicit instances).
-- **QuickAdd support**
+- **[QuickAdd](https://github.com/chhoumann/quickadd) support**
   - `module.exports` function-style scripts for commands and automation.
 - **Event-driven architecture**
   - Observables on keyup events hooked into Obsidian’s editor and input fields
@@ -59,12 +59,12 @@
 
   - CustomJS
   - QuickAdd
+  - [Dataview](https://github.com/blacksmithgu/obsidian-dataview)
 
 - **Supported / integrated plugins:**
 
-  - Full Calendar (small UI fixes)
+  - [Full Calendar](https://github.com/obsidian-community/obsidian-full-calendar) (small UI fixes)
   - Others as needed for extended functionality
-  - Dataview
 
 - **Language**: JavaScript (ES modules + CommonJS classes)
 - **Persistence**: Custom JSON-based DB
@@ -81,7 +81,7 @@ The architecture emphasizes **observable-based event handling**, decoupled desig
 
 ## Future Plans
 
-- Enhance link parser to properly manage CamelCase tokens
+- Enhance link parser to properly manage PascalCase camelCase tokens
 - Centralized JSON-based database handling
 - Automated Git backups and monthly vault maintenance
 - Dataview inline fields manager
