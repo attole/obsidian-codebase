@@ -66,7 +66,7 @@
   - [Full Calendar](https://github.com/obsidian-community/obsidian-full-calendar) (small UI fixes)
   - Others as needed for extended functionality
 
-- **Language**: JavaScript (ES modules + CommonJS classes)
+- **Language**: JavaScript
 - **Persistence**: Custom JSON-based DB
 - **Versioning**: Git integration for automated backups
 
@@ -79,7 +79,7 @@ The architecture emphasizes **observable-based event handling**, decoupled desig
 
 ---
 
-## Future Plans
+## Roadmap
 
 - Enhance link parser to properly manage PascalCase camelCase tokens
 - Centralized JSON-based database handling
