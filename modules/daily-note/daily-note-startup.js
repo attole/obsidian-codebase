@@ -62,7 +62,12 @@ class DailyNoteStartup {
 
 		for (const note of extraNotes) {
 			await this.#dailyNoteContent.updateProps(note);
-			await this.#noteManager.moveNote(note.path, archivePath);
+
+			// there could a case with some unrelated duplication, and this note is newer
+			// so move it forcefully (replace old one)
+			await this.#noteManager.moveNote(note.path, archivePath, {
+				mode: 'force',
+			});
 		}
 	}
 }
