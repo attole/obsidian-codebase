@@ -34,8 +34,6 @@ class ExtendedSectionManager {
 
 		await this.#loadInternal();
 
-		console.log('DEBUG', this.#sections);
-
 		return this;
 	}
 
@@ -164,8 +162,6 @@ class ExtendedSectionManager {
 			return;
 
 		await this.#fixEmptyLines();
-
-		console.log('INTERNAL', this.#sections);
 
 		// extend sections from base extension types and neighbour paragraphs
 		const extentionTypes = ['list', 'code'];
