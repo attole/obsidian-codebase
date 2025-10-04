@@ -73,12 +73,13 @@ class DateObserver {
 			)
 			.replaceAndCollect();
 
-		// in this case there would be no links, so just remove last space, that is activation keyup
-		if (newText !== text) {
-			if (event.code === 'Space')
-				newText = newText.slice(0, newText.length - 1);
+		if (newText === text) return;
 
-			element.value = newText;
-		}
+		// in this case there is no links, so if event is triggered by 'space' keyword
+		// just remove last space, that is activation keyup
+		if (event.code === 'Space')
+			newText = newText.slice(0, newText.length - 1);
+
+		element.value = newText;
 	}
 }
