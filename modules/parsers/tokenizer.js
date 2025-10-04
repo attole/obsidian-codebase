@@ -8,7 +8,25 @@ class Tokenizer {
 
 	tokenize(text, pattern) {
 		this.#text = text;
-		this.#tokens = pattern ? text.match(pattern) : text.split(/\s+/);
+		this.#tokens =
+			(pattern ? text.match(pattern) : text.split(/\s+/)) || [];
+
+		if (this.#tokens) return this;
+
+		let lastIndex = 0;
+		this.#tokens = this.#tokens.map((token) => {
+			const start = text.indexOf(token, lastIndex);
+			if (start === -1) return { input: token, position: null };
+
+			const end = start + token.length;
+			lastIndex = end;
+
+			return {
+				input: token,
+				position: { start, end },
+			};
+		});
+
 		return this;
 	}
 
@@ -20,10 +38,11 @@ class Tokenizer {
 			return;
 		}
 
-		this.#tokens = (this.#tokens || []).map((token) => {
+		this.#tokens = this.#tokens.map((token) => {
 			return {
-				input: token,
-				output: fn(token),
+				input: token.input,
+				output: fn(token.input),
+				position: token.position,
 			};
 		});
 
@@ -39,16 +58,21 @@ class Tokenizer {
 		}
 
 		this.#tokens = this.#tokens.filter(
-			(pair) => pair.output && pair.input != pair.output
+			(pair) => pair?.output && pair.input != pair.output && pair.position
 		);
 
 		if (this.#tokens.length === 0) return this.#text;
 
-		let newText = this.#text;
+		let newText = '';
+		let lastIndex = 0;
+
 		for (const token of this.#tokens) {
-			newText = newText.replace(token.input, token.output);
+			newText += this.#text.slice(lastIndex, token.position.start);
+			newText += token.output;
+			lastIndex = token.position.end;
 		}
 
+		newText += this.#text.slice(lastIndex);
 		return newText;
 	}
 }
