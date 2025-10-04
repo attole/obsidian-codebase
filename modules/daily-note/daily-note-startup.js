@@ -21,16 +21,14 @@ class DailyNoteStartup {
 		let note = this.#noteManager.getNotesByName(date)[0];
 		if (!note) {
 			note = await this.#dailyNoteContent.createNote(date);
-			await this.#syncExtraDailyNotes(date, activePath, archivePath);
+			await this.#syncDailyNotes(date, activePath, archivePath);
 		}
 
-		// if note should be rolloverd - it was already created (not today), so do rollover and sync extra note
+		// if note should be rolloverd - it was already created (not today), so try to sync it and do rollover
 		if (!(await this.#dailyNoteContent.isRollovered(note))) {
-			if (note.path.contains(archivePath))
-				this.#noteManager.moveNote(note.path, activePath);
-
-			await this.#syncExtraDailyNotes(date, activePath, archivePath);
+			await this.#updateAndMoveDailyNotes(note, archivePath, activePath);
 			await this.#dailyNoteContent.rollover(note);
+			await this.#syncDailyNotes(date, activePath, archivePath);
 		}
 
 		// always try to update props
@@ -38,12 +36,8 @@ class DailyNoteStartup {
 		return await this.#noteManager.openNote(note);
 	}
 
-	// sync extra daily notes - update their props and remove to archive folder
-	async #syncExtraDailyNotes(date, activePath, archivePath) {
-		const notes = await this.#dailyNoteHelper.getDailyNotesByFolder(
-			activePath
-		);
-
+	// move closest notes to active folder, all others - archive, update all props
+	async #syncDailyNotes(date, activePath, archivePath) {
 		const prevNote = this.#dailyNoteHelper.getClosestDailyNote(
 			date,
 			'prev'
@@ -53,21 +47,34 @@ class DailyNoteStartup {
 			'next'
 		);
 
-		const extraNotes = notes.filter(
+		await this.#updateAndMoveDailyNotes(
+			[prevNote, nextNote],
+			archivePath,
+			activePath
+		);
+
+		const extraNotes = (
+			await this.#dailyNoteHelper.getDailyNotesByFolder(activePath)
+		).filter(
 			(note) =>
-				note.basename !== date &&
+				date !== note.basename &&
 				(!prevNote || prevNote.basename !== note.basename) &&
 				(!nextNote || nextNote.basename !== note.basename)
 		);
 
-		for (const note of extraNotes) {
-			await this.#dailyNoteContent.updateProps(note);
+		this.#updateAndMoveDailyNotes(extraNotes, activePath, archivePath);
+	}
 
-			// there could a case with some unrelated duplication, and this note is newer
-			// so move it forcefully (replace old one)
-			await this.#noteManager.moveNote(note.path, archivePath, {
-				mode: 'force',
-			});
+	async #updateAndMoveDailyNotes(notes, fromFolder, toFolder) {
+		for (const note of notes) {
+			if (!note) continue;
+
+			if (note.path.contains(fromFolder))
+				this.#noteManager.moveNote(note.path, toFolder, {
+					mode: 'force',
+				});
+
+			await this.#dailyNoteContent.updateProps(note);
 		}
 	}
 }
