@@ -42,8 +42,10 @@ class DailyNoteContent {
 			if (!targetNote) continue;
 
 			const currentLink = await this.#propertyManager.read(note, type);
-			const link = `[[${targetNote.path}|${targetNote.basename}]]`;
+			if (currentLink) continue;
 
+			// use name based link, cause daily notes names are unique date
+			const link = `[[${targetNote.basename}]]`;
 			if (currentLink !== link) {
 				await this.#propertyManager.set(
 					note,
