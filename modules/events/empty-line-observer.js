@@ -1,4 +1,4 @@
-class EmptyLineInsert {
+class EmptyLineObserver {
 	edit(editor, _) {
 		const cursor = editor.getCursor();
 		const emptyLine = 'ㅤ';

@@ -28,7 +28,7 @@ class StartupHelper {
 		]);
 
 		const shiftEnterOb = this.#getEditorObservable(this.#shiftEnterEvent, [
-			window.customJS.EmptyLineInsert,
+			window.customJS.EmptyLineObserver,
 		]);
 
 		return [shiftEnterOb, shiftSpaceOb];
