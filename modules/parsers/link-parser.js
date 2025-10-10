@@ -102,7 +102,7 @@ class LinkParser {
 			if (returnEmptyMark) return this.#EMPTY_LINK;
 
 			if (!isMuted) {
-				const error = 'linkParser:  input - it is empty';
+				const error = 'linkParser: invalid input - it is empty';
 				new Notice(error);
 				throw new Error(error);
 			}
