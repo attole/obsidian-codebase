@@ -48,15 +48,14 @@ class DailyNoteContent {
 
 			if (!targetNote) continue;
 
+			// use name based link, cause daily notes have are unique date names
 			const currentLink = await this.#propertyManager.read(note, type);
-			if (currentLink) continue;
+			const newLink = `[[${targetNote.basename}]]`;
 
-			// use name based link, cause daily notes names are unique date
-			const link = `[[${targetNote.basename}]]`;
-			if (currentLink !== link) {
+			if (currentLink !== newLink) {
 				await this.#propertyManager.set(
 					note,
-					{ [type]: link },
+					{ [type]: newLink },
 					'force'
 				);
 			}
