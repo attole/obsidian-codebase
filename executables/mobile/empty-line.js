@@ -6,13 +6,14 @@ class EmptyLine {
 		const editor = view.editor;
 		if (!editor) return;
 
-		const cursor = editor.getCursor();
-		const emptyLine = '\nㅤ';
+		// create new empty line to insert token into
+		const editorPosition = editor.getCursor();
+		editor.replaceRange('\n', editorPosition);
+		editorPosition.line += 1;
 
-		editor.replaceRange(emptyLine, cursor);
-		editor.setCursor({
-			line: cursor.line,
-			ch: cursor.ch + emptyLine.length,
-		});
+		window.customJS.EmptyLineManager.insertIntoEditor(
+			editor,
+			editorPosition.line
+		);
 	}
 }

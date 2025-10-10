@@ -1,12 +1,8 @@
 class EmptyLineObserver {
-	edit(editor, _) {
-		const cursor = editor.getCursor();
-		const emptyLine = 'ㅤ';
-
-		editor.replaceRange(emptyLine, cursor);
-		editor.setCursor({
-			line: cursor.line,
-			ch: cursor.ch + emptyLine.length,
-		});
+	edit(editor, event) {
+		window.customJS.EmptyLineManager.insertIntoEditor(
+			editor,
+			editor.getCursor().line
+		);
 	}
 }
