@@ -43,7 +43,7 @@ class DateExpressionParser {
 		returnBaseOnEmpty = true,
 		isMuted = false,
 	} = {}) {
-		if (input == null || input.toString().trim() === '0') {
+		if (!input?.length) {
 			if (returnBaseOnEmpty) return this.#format(baseDate);
 			if (!isMuted) {
 				const error =
@@ -55,6 +55,8 @@ class DateExpressionParser {
 		}
 
 		input = input.toString().trim();
+
+		if (input === '0') return this.#format(baseDate);
 		if (this.#isValidISODate(input)) return input;
 
 		try {
