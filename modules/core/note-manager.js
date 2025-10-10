@@ -297,7 +297,7 @@ class NoteManager {
 	async deleteNote(note) {
 		if (!note) return;
 
-		await this.app.vault.delete(note);
+		await app.vault.delete(note);
 		return true;
 	}
 
