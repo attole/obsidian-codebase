@@ -96,7 +96,7 @@ class PropertyManager {
 		if (!properties) return;
 
 		// replate date template expression for current date
-		const date = window.customJS.DateExpressionParser.parse();
+		const date = window.customJS.DateExpressionParser.parseToken();
 		for (const key in properties) {
 			if (properties[key] === '{{currentDate}}') {
 				await this.set(note, { [key]: date }, 'force');
