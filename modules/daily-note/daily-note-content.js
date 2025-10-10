@@ -69,15 +69,24 @@ class DailyNoteContent {
 	 *   but rather by some external plugins that used daily notes plugin
 	 */
 	async isRollovered(note) {
+		const rolloverString = await this.#propertyManager.read(
+			note,
+			'rollovered'
+		);
+		const oldRolloverDate = new Date(rolloverString);
+
 		const betterRolloverDate = this.#dailyNoteHelper.getClosestDailyNote(
 			note.basename,
 			'prev'
-		)?.basename;
+		);
+		const newRolloverDate = betterRolloverDate
+			? new Date(betterRolloverDate.basename)
+			: null;
 
-		const rollover = await this.#propertyManager.read(note, 'rollovered');
 		return (
-			!isNaN(new Date(rollover)) &&
-			new Date(rollover) >= new Date(betterRolloverDate)
+			!isNaN(oldRolloverDate) &&
+			newRolloverDate &&
+			oldRolloverDate >= newRolloverDate
 		);
 	}
 
@@ -101,51 +110,51 @@ class DailyNoteContent {
 	// static rollover - preserve callouts data
 	// TODO possibly more with right markers in future??
 	async #staticRollover(previousNote, currentNote, useTemplateNote) {
-		const prevSm = await this.#sectionManager.load(previousNote);
-		const prevCallouts = prevSm.getSectionsContentObjects('callout');
-		if (prevCallouts.callout.length === 0) return;
-
 		// if note is newly created - use template note for callouts header, not newly
 		// created one, because new one is not yet cached to have sections available
 		const { templatePath } = this.#dailyNoteHelper.getStructurePathes();
-		const templateNote =
-			window.customJS.NoteManager.getNoteByPath(templatePath);
-		const structureNote = useTemplateNote ? templateNote : currentNote;
+		const templateNote = this.#noteManager.getNoteByPath(templatePath);
 
-		// there is still a chance that note is not cached yet (in case it was created
-		// recently by external plugin that use daily notes plugins)
-		// so backup to template one on error
-		let currentSm =
-			(await this.#sectionManager.load(structureNote)) ||
-			(await this.#sectionManager.load(templateNote));
-		const currentCallouts = currentSm.getSectionsContentObjects('callout');
+		let currentCallouts = await this.#extendedCacheManager.getSections(
+			useTemplateNote ? templateNote : currentNote,
+			['callout']
+		);
 
-		function firstLine(str) {
-			const index = str.indexOf('\n');
-			return (index === -1 ? str : str.slice(0, index)).trim();
+		// there is still a chance that note was not cached (in case it was created recently
+		// by external plugin that use daily notes plugins) so backup to template one on error
+		if (!currentCallouts?.callout?.length && !useTemplateNote) {
+			currentCallouts = await this.#extendedCacheManager.getSections(
+				templateNote,
+				['callout']
+			);
 		}
 
-		// map previous to current ones by first line - header of type '>[!type] title/n'
-		const prevCalloutsHeaders = {};
-		prevCallouts.callout.forEach((p) => {
-			prevCalloutsHeaders[firstLine(p.content)] = p.content.trim();
-		});
+		// if even template has no callouts - return
+		if (!currentCallouts?.callout?.length) return;
+		currentCallouts = currentCallouts.callout;
 
-		const contentMap = currentCallouts.callout.map((curr) => {
-			const header = firstLine(curr.content);
-			const newContent = prevCalloutsHeaders[header];
-			if (!newContent) return null;
+		let previousCallouts = await this.#extendedCacheManager.getSections(
+			previousNote,
+			['callout']
+		);
 
-			delete prevCalloutsHeaders[header];
-			return { current: curr.content.trim(), new: newContent };
-		});
+		// if previous note has no callouts - return
+		if (!previousCallouts?.callout?.length) return;
+		previousCallouts = previousCallouts.callout;
 
 		let noteContent = await app.vault.read(currentNote);
-		contentMap
-			.filter((c) => !!c)
-			.forEach((content) => {
-				noteContent = noteContent.replace(content.current, content.new);
-			});
+		currentCallouts.forEach((callout) => {
+			const prevCallout = previousCallouts.find((c) =>
+				this.#extendedSectionHelper.haveSameSignature(c, callout)
+			);
+
+			if (!prevCallout) return;
+
+			noteContent = noteContent.replace(
+				callout.content,
+				prevCallout.content
+			);
+		});
 
 		await app.vault.modify(currentNote, noteContent);
 	}
