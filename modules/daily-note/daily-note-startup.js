@@ -70,7 +70,7 @@ class DailyNoteStartup {
 			if (!note) continue;
 
 			if (note.path.contains(fromFolder))
-				this.#noteManager.moveNote(note.path, toFolder, {
+				await this.#noteManager.moveNote(note.path, toFolder, {
 					mode: 'force',
 				});
 
