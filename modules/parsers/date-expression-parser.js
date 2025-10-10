@@ -1,6 +1,4 @@
 class DateExpressionParser {
-	TOKENIZE_DATE_EXPRESSION = /[+-]?\d*[A-Za-z\\\/|]+|\b0\b/g;
-
 	#WEEKDAY_UNITS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
 	#DAY_UNITS = { d: 1, w: 7 };
 	#CALENDAR_UNITS = { m: 'month', y: 'year' };
@@ -18,7 +16,28 @@ class DateExpressionParser {
 		'i'
 	);
 
-	parse({
+	parseText({ input, baseDate = new Date() }) {
+		if (!input?.length) return input;
+
+		const tokenizer = window.customJS.createTokenizerInstance();
+		const regex = /[+-]?\d*[A-Za-z\\\/|]+|\b0\b/g;
+
+		let newText = tokenizer
+			.tokenize(input, regex)
+			.map((token) =>
+				this.parseToken({
+					input: token,
+					baseDate: baseDate,
+					returnBaseOnEmpty: false,
+					isMuted: true,
+				})
+			)
+			.replaceAndCollect();
+
+		return newText;
+	}
+
+	parseToken({
 		input = null,
 		baseDate = new Date(),
 		returnBaseOnEmpty = true,

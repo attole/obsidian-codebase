@@ -1,21 +1,11 @@
 class LinkObserver {
-	edit(editor, _) {
+	async edit(editor, _) {
 		const cursor = editor.getCursor();
 		const text = editor.getLine(cursor.line);
 
-		const newText = window.customJS.Tokenizer.tokenize(
-			text,
-			window.customJS.LinkParser.TOKENIZE_LINKS
-		)
-			.map((token) => {
-				return window.customJS.LinkParser.parse({
-					input: token,
-					returnEmptyMark: false,
-					isMuted: true,
-				});
-			})
-			.replaceAndCollect();
-
+		const newText = await window.customJS.LinkParser.parseText({
+			input: text,
+		});
 		if (newText === text) return;
 
 		editor.replaceRange(

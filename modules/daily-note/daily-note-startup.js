@@ -16,7 +16,7 @@ class DailyNoteStartup {
 			this.#dailyNoteHelper.getStructurePathes();
 
 		// TODO get this date from db, and if none - parse to get today
-		const date = window.customJS.DateExpressionParser.parse();
+		const date = window.customJS.DateExpressionParser.parseToken();
 
 		let note = this.#noteManager.getNotesByName(date)[0];
 		if (!note) {

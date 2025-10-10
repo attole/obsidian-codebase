@@ -1,6 +1,4 @@
 class LinkParser {
-	TOKENIZE_LINKS =
-		/\[\[[^\]]+\]\]|\[[^\]]*\]\([^)]+\)|\([^)]+\)\[[^\]]*\]|\[[^\]]+\]\([^)]+\)|\([^\]]*\)\[[^)]+\]|\[[^\]]+\]\[[^\]]+\]/;
 
 	#EMPTY_LINK = '[[in my mind/utilities/archive/EMPTY LINK|EMPTY LINK]]';
 
@@ -66,8 +64,40 @@ class LinkParser {
 		},
 	];
 
-	parse({ input, returnEmptyMark = true, isMuted = false }) {
-		if (!input) {
+	async parseText({ input }) {
+		if (!input?.length) return input;
+
+		const tokenizer = window.customJS.createTokenizerInstance();
+		const regex = new RegExp(
+			[
+				String.raw`\[\[[^\]]+\]\]`, // [[link]]
+				String.raw`\[[^\]]*\]\([^)]+\)`, // [text](url)
+				String.raw`\([^)]+\)\[[^\]]*\]`, // (url)[text]
+				String.raw`\[[^\]]+\]\[[^\]]+\]`, // [text][id]
+				String.raw`(?<![\[\(])https?:\/\/[^\s\[\]()<>]+(?![\]\)])`, // raw external
+			].join('|'),
+			'gm'
+		);
+
+		await tokenizer.tokenize(input, regex).mapAsync(async (token) => {
+			if (token)
+				return await window.customJS.LinkParser.parseToken({
+					input: token,
+					returnEmptyMark: false,
+					isMuted: true,
+				});
+		});
+
+		const newText = tokenizer.replaceAndCollect();
+		return newText;
+	}
+
+	async parseToken({
+		input = null,
+		returnEmptyMark = true,
+		isMuted = false,
+	} = {}) {
+		if (!input?.length) {
 			if (returnEmptyMark) return this.#EMPTY_LINK;
 
 			if (!isMuted) {

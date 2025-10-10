@@ -64,7 +64,7 @@ class FullCalendarStartup {
 		const match = element.innerText.match(/(\d{4}-\d{2}-\d{2})/);
 		if (match) return match[0];
 
-		return window.customJS.DateExpressionParser.parse({
+		return window.customJS.DateExpressionParser.parseToken({
 			input: new Date(element.innerText),
 		});
 	}

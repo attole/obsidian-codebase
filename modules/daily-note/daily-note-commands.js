@@ -9,7 +9,7 @@ class DailyNoteCommands {
 
 	// used as is on quickadd command to open daily notes
 	async openDailyNote({ input, isMuted = false, split = true } = {}) {
-		const date = this.#dateExpression.parse({ input });
+		const date = this.#dateExpression.parseToken({ input });
 
 		if (!(await this.#noteManager.doNoteExistByName(date))) {
 			if (isMuted) return;
@@ -36,8 +36,8 @@ class DailyNoteCommands {
 		if (!match) return;
 
 		const [, fromStr, toStr] = match;
-		let from = this.#dateExpression.parse({ input: fromStr });
-		let to = this.#dateExpression.parse({ input: toStr });
+		let from = this.#dateExpression.parseToken({ input: fromStr });
+		let to = this.#dateExpression.parseToken({ input: toStr });
 
 		if (!from || !to) return;
 		from = new Date(from);
@@ -45,7 +45,7 @@ class DailyNoteCommands {
 
 		let isFirst = true;
 		for (; from <= to; from.setDate(from.getDate() + 1)) {
-			const date = this.#dateExpression.parse({ input: from });
+			const date = this.#dateExpression.parseToken({ input: from });
 			await this.openDailyNote({
 				input: date,
 				isMuted: true,
@@ -59,7 +59,7 @@ class DailyNoteCommands {
 
 	// used as is on quickadd command to create daily note
 	async createDailyNote({ input, split = true }) {
-		const date = this.#dateExpression.parse({ input: input.trim() });
+		const date = this.#dateExpression.parseToken({ input: input.trim() });
 		await window.customJS.DailyNoteContent.createNote(date);
 		return await this.openDailyNote({ input, split: split });
 	}

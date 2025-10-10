@@ -1,8 +1,4 @@
 class DateObserver {
-	get #tokenizer() {
-		return window.customJS.createTokenizerInstance();
-	}
-
 	get #dateExpression() {
 		return window.customJS.createDateExpressionParserInstance();
 	}
@@ -14,24 +10,11 @@ class DateObserver {
 	 */
 	edit(editor, event) {
 		const cursor = editor.getCursor();
-		let text = editor.getLine(cursor.line);
+		const text = editor.getLine(cursor.line);
 
-		const isSpaceEvent = event.code === 'Space';
-		const isInLink = text.slice(cursor.ch, cursor.ch + 3).includes(']]');
-		if (isInLink && isSpaceEvent)
-			text = text.slice(0, cursor.ch - 1) + text.slice(cursor.ch);
-
-		let newText = this.#tokenizer
-			.tokenize(text, this.#dateExpression.TOKENIZE_DATE_EXPRESSION)
-			.map((token) =>
-				this.#dateExpression.parse({
-					input: token,
-					returnBaseOnEmpty: true,
-					isMuted: true,
-				})
-			)
-			.replaceAndCollect();
-
+		let newText = this.#dateExpression.parseText({
+			input: text,
+		});
 		if (newText === text) return;
 
 		let offset = 0;
@@ -62,24 +45,11 @@ class DateObserver {
 
 	patch(element, event) {
 		const text = element.value;
-		let newText = this.#tokenizer
-			.tokenize(text, this.#dateExpression.TOKENIZE_DATE_EXPRESSION)
-			.map((token) =>
-				this.#dateExpression.parse({
-					input: token,
-					returnBaseOnEmpty: true,
-					isMuted: true,
-				})
-			)
-			.replaceAndCollect();
+		if (!text) return;
 
-		if (newText === text) return;
-
-		// in this case there is no links, so if event is triggered by 'space' keyword
-		// just remove last space, that is activation keyup
-		if (event.code === 'Space')
-			newText = newText.slice(0, newText.length - 1);
-
-		element.value = newText;
+		let newText = this.#dateExpression.parseText({
+			input: text,
+		});
+		if (newText !== text) element.value = newText;
 	}
 }

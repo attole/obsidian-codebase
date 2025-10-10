@@ -11,21 +11,21 @@ class DailyNoteHelper {
 		};
 	}
 
-	// whether provided note is daily one. tags property check not done due to long time execution on mobile 
+	// whether provided note is daily one. tags property check not done due to long time execution on mobile
 	isDailyNote(note) {
 		return /^\d{4}-\d{2}-\d{2}$/.test(note.basename);
 	}
 
 	async getCurrentDailyNote() {
 		// TODO get this date from db, and if none - parse to get today
-		const date = window.customJS.DateExpressionParser.parse();
+		const date = window.customJS.DateExpressionParser.parseToken();
 		return window.customJS.NoteManager.getNotesByName(date)[0];
 	}
 
 	// get closest daily note by provided date and direction from set folder
 	getDailyNotesByFolder(path) {
 		const notes = window.customJS.FolderManager.getDirectNotes(path);
-		return notes?.filter(note => this.isDailyNote(note));
+		return notes?.filter((note) => this.isDailyNote(note));
 	}
 
 	// get closest daily note by provided date and direction from whole vault
