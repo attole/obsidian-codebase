@@ -109,6 +109,20 @@ class LinkParser {
 			return;
 		}
 
+		if (!this.LINK.test(input)) return;
+
+		const rawLinkRegex = /(?<![\[\(])https?:\/\/[^\s\[\]()<>]+(?![\]\)])/;
+		const rawLink = input.match(rawLinkRegex)?.[0];
+
+		if (rawLink) {
+			const autoLinkTitle =
+				app.plugins.plugins['obsidian-auto-link-title'];
+			if (!autoLinkTitle) return input;
+
+			const title = await autoLinkTitle.fetchUrlTitle(rawLink);
+			return `[${title}](${rawLink})`;
+		}
+
 		// external links
 		if (this.#EXTERNAL_LINK_FORMAT.test(input)) return input;
 
