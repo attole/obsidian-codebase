@@ -8,13 +8,6 @@ class LinkObserver {
 		});
 		if (newText === text) return;
 
-		editor.replaceRange(
-			newText,
-			{ line: cursor.line, ch: 0 },
-			{
-				line: cursor.line,
-				ch: text.length,
-			}
-		);
+		editor.setLine(cursor.line, newText);
 	}
 }
