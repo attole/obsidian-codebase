@@ -49,6 +49,29 @@ class Tokenizer {
 		return this;
 	}
 
+	async mapAsync(fn) {
+		if (!this.#text) {
+			const error = 'tokenizer: no data were loaded';
+			console.error(error);
+			new Notice(error);
+			return;
+		}
+
+		const result = await Promise.all(
+			this.#tokens.map(async (token) => {
+				return {
+					input: token.input,
+					output: await fn(token.input),
+					position: token.position,
+				};
+			})
+		);
+
+		this.#tokens = result;
+
+		return this;
+	}
+
 	replaceAndCollect() {
 		if (!this.#text) {
 			const error = 'tokenizer: no data were loaded';
