@@ -43,7 +43,11 @@ class EditorObservable {
 
 		dom.addEventListener(this.#event.name, (event) => {
 			if (!this.#event.isMatchFn(event)) return;
-			this.#handlers.forEach((handler) => handler.edit(editor, event));
+			this.#handlers.forEach(async (handler) => {
+				// prevents on inserting space, but not on enter
+				event.preventDefault();
+				await handler.edit(editor, event);
+			});
 		});
 	}
 }
