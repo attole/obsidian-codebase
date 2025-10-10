@@ -8,5 +8,8 @@ class DateInline {
 
 		window.customJS.DateObserver.edit(editor);
 
+		const dateExpression = window.customJS.DateExpressionParser;
+		const clipboardManager = window.customJS.ClipboardManager;
+		await clipboardManager.tryInsertFromClipboard(editor, dateExpression);
 	}
 }
