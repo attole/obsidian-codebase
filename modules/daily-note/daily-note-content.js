@@ -1,4 +1,7 @@
 class DailyNoteContent {
+	get #noteManager() {
+		return window.customJS.createNoteManagerInstance();
+	}
 	get #dailyNoteHelper() {
 		return window.customJS.createDailyNoteHelperInstance();
 	}
@@ -7,8 +10,12 @@ class DailyNoteContent {
 		return window.customJS.createPropertyManagerInstance();
 	}
 
-	get #sectionManager() {
-		return window.customJS.createExtendedSectionManagerInstance();
+	get #extendedCacheManager() {
+		return window.customJS.createExtendedCacheManagerInstance();
+	}
+
+	get #extendedSectionHelper() {
+		return window.customJS.createExtendedSectionHelperInstance();
 	}
 
 	// create daily note by provided date
@@ -16,7 +23,7 @@ class DailyNoteContent {
 		const { templatePath, activePath } =
 			this.#dailyNoteHelper.getStructurePathes();
 
-		const note = await window.customJS.NoteManager.createNoteByTemplate({
+		const note = await this.#noteManager.createNoteByTemplate({
 			folderPath: activePath,
 			name: date,
 			templatePath,
