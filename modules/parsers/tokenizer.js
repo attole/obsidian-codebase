@@ -11,7 +11,7 @@ class Tokenizer {
 		this.#tokens =
 			(pattern ? text.match(pattern) : text.split(/\s+/)) || [];
 
-		if (this.#tokens) return this;
+		if (!this.#tokens) return this;
 
 		let lastIndex = 0;
 		this.#tokens = this.#tokens.map((token) => {
