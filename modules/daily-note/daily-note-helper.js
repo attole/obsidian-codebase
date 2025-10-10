@@ -40,7 +40,9 @@ class DailyNoteHelper {
 
 	// get closest daily note by provided date and direction from folder pathes
 	#getClosestDailyNoteByFolders(date, direction, pathes) {
-		const dailyNotes = pathes.map((path) => this.getDailyNotesByFolder(path)).flat();
+		const dailyNotes = pathes
+			.map((path) => this.getDailyNotesByFolder(path))
+			.flat();
 		if (dailyNotes.length === 0) return;
 
 		const prev = !direction || direction === 'prev';
@@ -48,14 +50,12 @@ class DailyNoteHelper {
 
 		let closest = null;
 		for (const note of dailyNotes) {
-			const noteDate = new Date(note.basename)
+			const noteDate = new Date(note.basename);
 
 			if (prev ? noteDate < date : noteDate > date) {
 				if (
 					!closest ||
-					(prev
-						? noteDate > closest.date
-						: noteDate < closest.date)
+					(prev ? noteDate > closest.date : noteDate < closest.date)
 				) {
 					closest = { note, date: noteDate };
 				}

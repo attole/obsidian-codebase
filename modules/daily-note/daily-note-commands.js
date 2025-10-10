@@ -26,7 +26,7 @@ class DailyNoteCommands {
 	}
 
 	/*
-	 * used as is on quickadd command to bulk open daily notes. 
+	 * used as is on quickadd command to bulk open daily notes.
 	 * syntax - 'f:{d} t:{d}?', where:
 	 * - {d} is date expression
 	 * - whole second part is optional (no 'to' date - current one used)

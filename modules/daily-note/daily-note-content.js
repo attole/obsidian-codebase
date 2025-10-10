@@ -11,7 +11,7 @@ class DailyNoteContent {
 		return window.customJS.createExtendedSectionManagerInstance();
 	}
 
-	// create daily note by provided date from scratch
+	// create daily note by provided date
 	async createNote(date) {
 		const { templatePath, activePath } =
 			this.#dailyNoteHelper.getStructurePathes();
