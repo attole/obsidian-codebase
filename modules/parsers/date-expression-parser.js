@@ -43,6 +43,8 @@ class DateExpressionParser {
 		returnBaseOnEmpty = true,
 		isMuted = false,
 	} = {}) {
+		input = input?.toString().trim();
+
 		if (!input?.length) {
 			if (returnBaseOnEmpty) return this.#format(baseDate);
 			if (!isMuted) {
@@ -53,8 +55,6 @@ class DateExpressionParser {
 			}
 			return;
 		}
-
-		input = input.toString().trim();
 
 		if (input === '0') return this.#format(baseDate);
 		if (this.#isValidISODate(input)) return input;

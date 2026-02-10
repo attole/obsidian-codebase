@@ -21,37 +21,35 @@ class DailyNoteStartup {
 		let note = this.#noteManager.getNotesByName(date)[0];
 		if (!note) {
 			note = await this.#dailyNoteContent.createNote(date);
-			await this.#syncDailyNotes(date, activePath, archivePath);
 		}
 
 		// if note should be rolloverd - it was already created (not today), so try to sync it and do rollover
 		if (!(await this.#dailyNoteContent.isRollovered(note))) {
-			await this.#updateAndMoveDailyNotes(note, archivePath, activePath);
 			await this.#dailyNoteContent.rollover(note);
-			await this.#syncDailyNotes(date, activePath, archivePath);
 		}
 
-		// always try to update props
-		await this.#dailyNoteContent.updateProps(note);
+		await this.#syncDailyNotes(date, note, activePath, archivePath);
 		return await this.#noteManager.openNote(note);
 	}
 
-	// move closest notes to active folder, all others - archive, update all props
-	async #syncDailyNotes(date, activePath, archivePath) {
+	async #syncDailyNotes(date, currentNote, activePath, archivePath) {
+		await this.#updateAndMoveDailyNote(
+			currentNote,
+			archivePath,
+			activePath
+		);
+
 		const prevNote = this.#dailyNoteHelper.getClosestDailyNote(
 			date,
 			'prev'
 		);
+		await this.#updateAndMoveDailyNote(prevNote, archivePath, activePath);
+
 		const nextNote = this.#dailyNoteHelper.getClosestDailyNote(
 			date,
 			'next'
 		);
-
-		await this.#updateAndMoveDailyNotes(
-			[prevNote, nextNote],
-			archivePath,
-			activePath
-		);
+		await this.#updateAndMoveDailyNote(nextNote, archivePath, activePath);
 
 		const extraNotes = (
 			await this.#dailyNoteHelper.getDailyNotesByFolder(activePath)
@@ -62,19 +60,19 @@ class DailyNoteStartup {
 				(!nextNote || nextNote.basename !== note.basename)
 		);
 
-		this.#updateAndMoveDailyNotes(extraNotes, activePath, archivePath);
+		for (const note of extraNotes) {
+			await this.#updateAndMoveDailyNote(note, activePath, archivePath);
+		}
 	}
 
-	async #updateAndMoveDailyNotes(notes, fromFolder, toFolder) {
-		for (const note of notes) {
-			if (!note) continue;
+	async #updateAndMoveDailyNote(note, fromFolder, toFolder) {
+		if (!note) return;
 
-			if (note.path.contains(fromFolder))
-				await this.#noteManager.moveNote(note.path, toFolder, {
-					mode: 'force',
-				});
+		if (note.path.contains(fromFolder))
+			await this.#noteManager.moveNote(note.path, toFolder, {
+				mode: 'force',
+			});
 
-			await this.#dailyNoteContent.updateProps(note);
-		}
+		await this.#dailyNoteContent.updateProps(note);
 	}
 }

@@ -38,7 +38,6 @@ class FullCalendarStartup {
 			element.style.cursor = 'pointer';
 
 			const date = this.#getDate(element);
-
 			const note = window.customJS.NoteManager.getNotesByName(date)[0];
 			if (!note) return;
 

@@ -1,5 +1,5 @@
 class test {
-	async invoke() {
-		console.clear();
-	}
+  async invoke() {
+    console.clear();
+  }
 }

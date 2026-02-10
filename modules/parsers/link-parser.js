@@ -1,5 +1,5 @@
 class LinkParser {
-	LINK = /\[\[.*?\]\]|https?:\/\//;
+	LINK = /^\[\[.*?\]\]|https?:\/\/\S*$/;
 
 	#EMPTY_LINK = '[[in my mind/utilities/archive/EMPTY LINK|EMPTY LINK]]';
 

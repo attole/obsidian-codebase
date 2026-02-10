@@ -4,7 +4,9 @@ class ClipboardManager {
 		if (!text?.length) return false;
 
 		if (parser) {
-			text = await parser.parseText({ input: text });
+			const newText = await parser.parseText({ input: text });
+			if (newText === text) return;
+			text = newText;
 		}
 
 		const cursor = editor.getCursor();

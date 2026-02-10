@@ -8,8 +8,8 @@ class LinkInline {
 
 		window.customJS.LinkObserver.edit(editor);
 
-		const dateExpression = window.customJS.LinkParser;
+		const linkParser = window.customJS.LinkParser;
 		const clipboardManager = window.customJS.ClipboardManager;
-		await clipboardManager.tryInsertFromClipboard(editor, dateExpression);
+		await clipboardManager.tryInsertFromClipboard(editor, linkParser);
 	}
 }

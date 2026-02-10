@@ -18,6 +18,7 @@ class StartupHelper {
 	#inputFields = [
 		'.prompt-input',
 		'input[type="search"][enterkeyhint="search"]',
+		'input[type="text"]',
 		'.modal-content input',
 	];
 
